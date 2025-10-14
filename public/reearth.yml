@@ -1,16 +1,98 @@
-id: reearth-visualizer-plugin-shadcn-template
-name: Visualizer plugin shadcn template
+id: cms-data-visualizer-plugin
+name: CMS Data Visualizer Plugin
 version: 1.0.0
 extensions:
-  - id: demo
+  - id: visualizer
     type: widget
-    name: Demo
+    name: CMS Data Visualizer
     schema:
       groups:
-        - id: appearance
-          title: Appearance
+        - id: api
+          title: API
           fields:
-            - id: primary_color
-              title: Primary color
+            - id: data_source_type
+              title: Data Source Type
               type: string
-              ui: color
+              choices:
+                - key: cms_data_visualizer_server
+                  label: CMS Data Visualizer Server
+                - key: cms_integration_api
+                  label: CMS Integration API
+            - id: server_base_url
+              title: Server Base URL
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_data_visualizer_server
+            - id: server_api_key
+              title: Server API Key
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_data_visualizer_server
+            - id: integration_api_base_url
+              title: Integration API Base URL
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_integration_api
+            - id: integration_api_key
+              title: Integration API Key
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_integration_api
+            - id: cms_model_id
+              title: CMS Model ID
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_integration_api
+        - id: visualization
+          title: Visualization
+          fields:
+            - id: location_type
+              title: Location Type
+              type: string
+              choices:
+                - key: lat_lng_fields
+                  label: Latitude & Longitude fields
+                - key: geojson_field
+                  label: GeoJSON field
+            - id: latitude_field
+              title: Latitude Field
+              type: string
+              availableIf:
+                field: location_type
+                type: string
+                value: lat_lng_fields
+            - id: longitude_field
+              title: Longitude Field
+              type: string
+              availableIf:
+                field: location_type
+                type: string
+                value: lat_lng_fields
+            - id: geojson_field
+              title: GeoJSON Field
+              type: string
+              availableIf:
+                field: location_type
+                type: string
+                value: geojson_field
+            - id: infobox_fields
+              title: Infobox Fields (comma-separated)
+              type: string
+              ui: multiline
+            - id: marker_appearance
+              title: Marker Appearance
+              type: string
+              ui: multiline
+  - id: inspector_block
+    type: infoboxBlock
+    name: CMS Data Inspector Block
