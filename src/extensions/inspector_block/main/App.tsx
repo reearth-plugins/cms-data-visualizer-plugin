@@ -8,11 +8,15 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col gap-2 text-sm">
+    <div className="flex flex-col gap-4 text-sm text-gray-700">
       {properties.map((prop) => (
-        <div key={prop.id}>
-          <strong>{prop.key}</strong>
-          <pre>{prop.value}</pre>
+        <div key={prop.id} className="flex flex-col gap-1">
+          <div className="font-bold uppercase text-black">{prop.key}</div>
+          {["text", "textarea"].includes(prop.type) ? (
+            <div className="whitespace-pre-wrap break-words">{prop.value}</div>
+          ) : (
+            <div>{prop.value}</div>
+          )}
         </div>
       ))}
     </div>
