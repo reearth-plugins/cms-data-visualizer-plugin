@@ -38,6 +38,16 @@ type UIMessage =
 const reearth = (globalThis as unknown as GlobalThis).reearth;
 reearth.ui.show(html_main);
 
+let markerAppearance = {};
+try {
+  markerAppearance = JSON.parse(
+    (reearth.extension?.widget?.property as WidgetProperty)?.visualization
+      ?.marker_appearance || "{}"
+  );
+} catch (error) {
+  console.error("Failed to parse marker appearance:", error);
+}
+
 reearth.extension.on("message", (message: unknown) => {
   const msg = message as UIMessage;
 
@@ -59,7 +69,9 @@ reearth.extension.on("message", (message: unknown) => {
         type: "geojson",
         value: geoJSON,
       },
-      marker: {},
+      marker: {
+        ...markerAppearance,
+      },
       infobox: {
         blocks: [
           {
@@ -107,14 +119,23 @@ const generateGeoJSON = (
     .map((item) => {
       // Prepare properties
       const properties: Record<string, any> = {};
-      properties.__original = [];
-      fields.forEach((field) => {
-        const fieldObj = item.fields.find((f) => f.key === field);
-        if (fieldObj) {
-          properties[field] = fieldObj.value;
-          properties.__original.push(fieldObj);
-        }
-      });
+
+      if (fields.length === 0) {
+        // If no infobox fields specified, include all fields
+        item.fields.forEach((field) => {
+          properties[field.key] = field.value;
+        });
+        properties.__original = item.fields;
+      } else {
+        properties.__original = [];
+        fields.forEach((field) => {
+          const fieldObj = item.fields.find((f) => f.key === field);
+          if (fieldObj) {
+            properties[field] = fieldObj.value;
+            properties.__original.push(fieldObj);
+          }
+        });
+      }
 
       // Get location
       const coordinates = [];

@@ -21,7 +21,7 @@ export default () => {
     postMsg("init");
   }, []);
 
-  const handleMessage = (e: MessageEvent) => {
+  const handleMessage = async (e: MessageEvent) => {
     if (e.data.action === "init") {
       const widgetProperty = e.data.payload as WidgetProperty | undefined;
       if (!widgetProperty || !widgetProperty.api.data_source_type) {
@@ -44,26 +44,25 @@ export default () => {
           );
           return;
         }
-        const url = `${widgetProperty.api.server_base_url}/items`;
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${widgetProperty.api.server_api_key}`,
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then((data) => {
-            postMsg("addLayer", data.data.items || []);
-          })
-          .catch((error) => {
-            console.error("Error fetching data:", error);
+        try {
+          const url = `${widgetProperty.api.server_base_url}/items`;
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${widgetProperty.api.server_api_key}`,
+            },
           });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          postMsg("addLayer", data.data.items || []);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       } else if (
         // Fetch data from CMS Integration API
         widgetProperty.api.data_source_type === "cms_integration_api"
@@ -78,26 +77,81 @@ export default () => {
           );
           return;
         }
-        const url = `${widgetProperty.api.integration_api_base_url}/models/${widgetProperty.api.cms_model_id}/items?perPage=10000`;
-        fetch(url, {
-          method: "GET",
-          headers: {
+        // Fetch Schema
+        let schema;
+        try {
+          const url = `${widgetProperty.api.integration_api_base_url}/models/${widgetProperty.api.cms_model_id}`;
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${widgetProperty.api.integration_api_key}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          schema = data.schema.fields;
+          console.log(schema);
+        } catch (error) {
+          console.error("Error fetching schema:", error);
+        }
+
+        // Fetch Items with pagination
+        try {
+          const baseUrl = `${widgetProperty.api.integration_api_base_url}/models/${widgetProperty.api.cms_model_id}/items`;
+          const headers = {
             "Content-Type": "application/json",
             Authorization: `Bearer ${widgetProperty.api.integration_api_key}`,
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then((data) => {
-            postMsg("addLayer", data.items || []);
-          })
-          .catch((error) => {
-            console.error("Error fetching data:", error);
+          };
+
+          // First request to get total count
+          const firstResponse = await fetch(`${baseUrl}?perPage=100&page=1`, {
+            method: "GET",
+            headers,
           });
+
+          if (!firstResponse.ok) {
+            throw new Error(`HTTP error! status: ${firstResponse.status}`);
+          }
+
+          const firstData = await firstResponse.json();
+          const totalCount = firstData.totalCount;
+          const perPage = 100;
+          const totalPages = Math.ceil(totalCount / perPage);
+
+          let allItems = firstData.items || [];
+
+          // Fetch remaining pages if there are more
+          if (totalPages > 1) {
+            const pagePromises = [];
+            for (let page = 2; page <= totalPages; page++) {
+              pagePromises.push(
+                fetch(`${baseUrl}?perPage=${perPage}&page=${page}`, {
+                  method: "GET",
+                  headers,
+                })
+              );
+            }
+
+            const responses = await Promise.all(pagePromises);
+
+            for (const response of responses) {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              const data = await response.json();
+              allItems = allItems.concat(data.items || []);
+            }
+          }
+
+          postMsg("addLayer", allItems);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       }
     }
   };
