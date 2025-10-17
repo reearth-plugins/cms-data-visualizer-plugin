@@ -9,6 +9,7 @@ type WidgetProperty = {
     server_api_key?: string;
     integration_api_base_url?: string;
     integration_api_key?: string;
+    cms_project_id?: string;
     cms_model_id?: string;
   };
   appearance: {
@@ -24,6 +25,12 @@ type Schema = {
   required: boolean;
   type: string;
 }[];
+
+// Sub-collect Asset type
+type Asset = {
+  id: string;
+  url: string;
+};
 
 type Item = {
   id: string;
@@ -91,13 +98,67 @@ export default () => {
         if (
           !widgetProperty.api.integration_api_base_url ||
           !widgetProperty.api.integration_api_key ||
+          !widgetProperty.api.cms_project_id ||
           !widgetProperty.api.cms_model_id
         ) {
           console.warn(
-            "Please set the Integration API Base URL, Integration API Key, and CMS Model ID in the widget properties."
+            "Please set the Integration API Base URL, Integration API Key, CMS Project ID, and CMS Model ID in the widget properties."
           );
           return;
         }
+
+        // Fetch Assets with pagination
+        let assets: Asset[];
+        try {
+          const baseUrl = `${widgetProperty.api.integration_api_base_url}/projects/${widgetProperty.api.cms_project_id}/assets`;
+          const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${widgetProperty.api.integration_api_key}`,
+          };
+          // First request to get total count
+          const firstResponse = await fetch(`${baseUrl}?perPage=100&page=1`, {
+            method: "GET",
+            headers,
+          });
+
+          if (!firstResponse.ok) {
+            throw new Error(`HTTP error! status: ${firstResponse.status}`);
+          }
+
+          const firstData = await firstResponse.json();
+          const totalCount = firstData.totalCount;
+          const perPage = 100;
+          const totalPages = Math.ceil(totalCount / perPage);
+
+          assets = firstData.items || [];
+
+          // Fetch remaining pages if there are more
+          if (totalPages > 1) {
+            const pagePromises = [];
+            for (let page = 2; page <= totalPages; page++) {
+              pagePromises.push(
+                fetch(`${baseUrl}?perPage=${perPage}&page=${page}`, {
+                  method: "GET",
+                  headers,
+                })
+              );
+            }
+
+            const responses = await Promise.all(pagePromises);
+
+            for (const response of responses) {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              const data = await response.json();
+              assets = assets.concat(data.items || []);
+            }
+          }
+          postMsg("setAssets", assets);
+        } catch (error) {
+          console.error("Error fetching assets:", error);
+        }
+
         // Fetch Schema
         let schema: Schema;
         try {
@@ -169,17 +230,31 @@ export default () => {
           }
 
           // append schema's name to each item
+          // replace asset id with asset url in each item
           allItems = allItems.map((item: Item) => ({
             ...item,
             fields: [
               ...item.fields.map((field: Field) => ({
                 ...field,
                 name: schema.find((s) => s.key === field.key)?.name,
+                value:
+                  field.type === "asset" && typeof field.value === "string"
+                    ? assets.find((a) => a.id === field.value)?.url ||
+                      field.value
+                    : field.type === "asset" && Array.isArray(field.value)
+                      ? (field.value as string[])
+                          .map(
+                            (assetId) =>
+                              assets.find((a) => a.id === assetId)?.url ||
+                              assetId
+                          )
+                          .reverse()
+                      : field.value,
               })),
             ],
           }));
 
-          console.log("items", allItems);
+          console.log("Debug: items", allItems);
           postMsg("addLayer", allItems);
         } catch (error) {
           console.error("Error fetching data:", error);

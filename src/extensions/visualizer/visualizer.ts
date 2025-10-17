@@ -12,19 +12,27 @@ type VisualizationConfig = {
   marker_appearance?: string;
 };
 
+type InspectorConfig = {
+  display_fields?: string;
+};
+
 type WidgetProperty = {
   // ignore tha api group
   visualization: VisualizationConfig;
+  inspector: InspectorConfig;
+};
+
+type ItemField = {
+  id: string;
+  key: string;
+  type: string;
+  value: unknown;
+  name?: string;
 };
 
 type Item = {
   id: string;
-  fields: {
-    id: string;
-    key: string;
-    type: string;
-    value: unknown;
-  }[];
+  fields: ItemField[];
 };
 
 type UIMessage =
@@ -119,8 +127,10 @@ const generateGeoJSON = (
   }
 
   // Convert items to GeoJSON features
-  const fields = config.infobox_fields
-    ? config.infobox_fields.split(",").map((f) => f.trim())
+  const inspectorConfig =
+    (reearth.extension?.widget?.property as WidgetProperty)?.inspector || {};
+  const displayFields = inspectorConfig.display_fields
+    ? inspectorConfig.display_fields.split(",").map((f) => f.trim())
     : [];
 
   const features = items
@@ -128,22 +138,13 @@ const generateGeoJSON = (
       // Prepare properties
       const properties: Record<string, any> = {};
 
-      if (fields.length === 0) {
-        // If no infobox fields specified, include all fields
-        item.fields.forEach((field) => {
-          properties[field.key] = field.value;
-        });
-        properties.__original = item.fields;
-      } else {
-        properties.__original = [];
-        fields.forEach((field) => {
-          const fieldObj = item.fields.find((f) => f.key === field);
-          if (fieldObj) {
-            properties[field] = fieldObj.value;
-            properties.__original.push(fieldObj);
-          }
-        });
-      }
+      // Add all fields as properties
+      item.fields.forEach((field) => {
+        properties[field.key] = field.value;
+      });
+
+      // Add filtered fields for inspector
+      properties.__inspector_fields = filterFields(item.fields, displayFields);
 
       // Get location
       const coordinates = [];
@@ -244,4 +245,21 @@ const generateGeoJSON = (
   };
 
   return geoJSON;
+};
+
+const filterFields = (
+  originalFields: ItemField[],
+  displayFieldKeys: string[]
+) => {
+  if (displayFieldKeys.length === 0) {
+    return originalFields;
+  }
+  const filteredFields = [];
+  for (const key of displayFieldKeys) {
+    const field = originalFields.find((f) => f.key === key);
+    if (field) {
+      filteredFields.push(field);
+    }
+  }
+  return filteredFields;
 };
