@@ -3,10 +3,11 @@ import html_main from "@distui/visualizer/main/index.html?raw";
 import { GlobalThis } from "@/shared/reearthTypes";
 
 type VisualizationConfig = {
-  location_type?: "lat_lng_fields" | "geojson_field";
-  latitude_field?: string;
-  longitude_field?: string;
-  geojson_field?: string;
+  location_type?: "lng_lat_fields" | "lng_lat_array_field" | "geojson_field";
+  latitude_field_key?: string;
+  longitude_field_key?: string;
+  longitude_latitude_array_field_key?: string;
+  geojson_field_key?: string;
   infobox_fields?: string;
   marker_appearance?: string;
 };
@@ -94,17 +95,24 @@ const generateGeoJSON = (
   }
 
   // Check location parameters
-  if (config.location_type === "lat_lng_fields") {
-    if (!config.latitude_field || !config.longitude_field) {
+  if (config.location_type === "lng_lat_fields") {
+    if (!config.latitude_field_key || !config.longitude_field_key) {
       console.warn(
-        "Please set the Latitude Field and Longitude Field in the visualization configuration."
+        "Please set the Longitude Field Key and Latitude Field Key in the visualization configuration."
+      );
+      return null;
+    }
+  } else if (config.location_type === "lng_lat_array_field") {
+    if (!config.longitude_latitude_array_field_key) {
+      console.warn(
+        "Please set the Longitude & Latitude Array Field Key in the visualization configuration."
       );
       return null;
     }
   } else if (config.location_type === "geojson_field") {
-    if (!config.geojson_field) {
+    if (!config.geojson_field_key) {
       console.warn(
-        "Please set the GeoJSON Field in the visualization configuration."
+        "Please set the GeoJSON Field Key in the visualization configuration."
       );
       return null;
     }
@@ -139,12 +147,12 @@ const generateGeoJSON = (
 
       // Get location
       const coordinates = [];
-      if (config.location_type === "lat_lng_fields") {
+      if (config.location_type === "lng_lat_fields") {
         const lat = item.fields.find(
-          (f) => f.key === config.latitude_field
+          (f) => f.key === config.latitude_field_key
         )?.value;
         const lng = item.fields.find(
-          (f) => f.key === config.longitude_field
+          (f) => f.key === config.longitude_field_key
         )?.value;
 
         if (lat === undefined || lng === undefined) {
@@ -152,10 +160,21 @@ const generateGeoJSON = (
         }
 
         coordinates.push(lng, lat);
+      } else if (config.location_type === "lng_lat_array_field") {
+        const latLngArray = item.fields.find(
+          (f) => f.key === config.longitude_latitude_array_field_key
+        )?.value;
+        if (!Array.isArray(latLngArray) || latLngArray.length < 2) {
+          console.warn(
+            `Invalid Longitude & Latitude array for item ${item.id}`
+          );
+          return null;
+        }
+        coordinates.push(latLngArray[0], latLngArray[1]);
       } else if (config.location_type === "geojson_field") {
         try {
           const geojson = item.fields.find(
-            (f) => f.key === config.geojson_field
+            (f) => f.key === config.geojson_field_key
           )?.value;
 
           if (!geojson) {
