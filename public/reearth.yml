@@ -46,6 +46,13 @@ extensions:
                 field: data_source_type
                 type: string
                 value: cms_integration_api
+            - id: cms_project_id
+              title: CMS Project ID
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_integration_api
             - id: cms_model_id
               title: CMS Model ID
               type: string
@@ -94,12 +101,16 @@ extensions:
                 field: location_type
                 type: string
                 value: geojson_field
-            - id: infobox_fields
-              title: Infobox Fields (comma-separated)
-              type: string
-              ui: multiline
             - id: marker_appearance
               title: Marker Appearance
+              type: string
+              ui: multiline
+        - id: inspector
+          title: Inspector
+          fields:
+            - id: display_fields
+              title: Display Fields
+              description: "Specify the fields to display in the infobox, separated by commas. Left empty to show all fields."
               type: string
               ui: multiline
   - id: inspector_block

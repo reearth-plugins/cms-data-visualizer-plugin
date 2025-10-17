@@ -13,7 +13,8 @@ const sendProperties = () => {
   reearth.ui.postMessage({
     action: "getProperties",
     payload:
-      reearth.layers.selectedFeature?.properties?.__original || undefined,
+      reearth.layers.selectedFeature?.properties?.__inspector_fields ||
+      undefined,
   });
 };
 
