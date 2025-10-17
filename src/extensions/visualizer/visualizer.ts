@@ -22,7 +22,7 @@ type Item = {
     id: string;
     key: string;
     type: string;
-    value: string | number | boolean | null | object;
+    value: unknown;
   }[];
 };
 
@@ -153,12 +153,17 @@ const generateGeoJSON = (
 
         coordinates.push(lng, lat);
       } else if (config.location_type === "geojson_field") {
-        const geojson = item.fields.find(
-          (f) => f.key === config.geojson_field
-        )?.value;
-
-        // Parse GeoJSON string and get coordinates
         try {
+          const geojson = item.fields.find(
+            (f) => f.key === config.geojson_field
+          )?.value;
+
+          if (!geojson) {
+            console.warn(`GeoJSON field is missing for item ${item.id}`);
+            return null;
+          }
+
+          // Parse GeoJSON string and get coordinates
           if (typeof geojson === "string") {
             const geojsonObj = JSON.parse(geojson);
             if (
