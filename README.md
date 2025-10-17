@@ -62,10 +62,25 @@ The plugin supports two data source types:
 
 ### CMS Data Visualizer Server
 
+```mermaid
+sequenceDiagram
+  Plugin->>Server: /items (api token)
+  Server->>ReEarth CMS: Integration API, get model & items (intergration token)
+  ReEarth CMS->>Server: Response
+  Server->>Server: Combine & filter fields
+  Server->>Plugin: Response
+```
+
 - **Server Base URL**: Base URL of your CMS Data Visualizer server
 - **Server API Key**: Authentication key for server access
 
 ### CMS Integration API
+
+```mermaid
+sequenceDiagram
+  Plugin->>ReEarth CMS: Integration API, get model & items (intergration token)
+  ReEarth CMS->>Plugin: Response
+```
 
 - **Integration API Base URL**: Base URL of your CMS Integration API
 - **Integration API Key**: Authentication key for API access
