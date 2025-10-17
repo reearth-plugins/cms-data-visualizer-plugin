@@ -1,220 +1,142 @@
-# Re:Earth Visualizer Plugin ShadCN Template
+# CMS Data Visualizer Plugin
 
-This template provides a minimal setup to develop a Re:Earth Visualizer Plugin with Vite, React, ShadCN, and Tailwind CSS.
+A Re-Earth Visualizer plugin that enables visualization of CMS data on 3D maps with customizable markers and information displays.
 
-## Tech Stack
+## Features
 
-- **React 19.1.0** with **TypeScript 5.7.2**
-- **Vite 6.0.3** for build tooling
-- **TailwindCSS 4.1.10** for styling
-- **Radix UI** components with **ShadCN/UI**
+- **Multiple Data Sources**: Support for CMS Data Visualizer Server and CMS Integration API
+- **Flexible Location Data**: Handle longitude/latitude fields, coordinate arrays, or GeoJSON
+- **Customizable Visualization**: Configurable marker appearance and infobox fields
+- **Inspector Block**: Dedicated component for detailed data inspection
 
-## Re:Earth Visualizer Plugin Structure
+## Quick Start
 
-The structure of a Re:Earth Visualizer Plugin aligns with the definitions in `reearth.yml`. Specifically:
+### Prerequisites
 
-- A plugin can contain zero to multiple extensions.
-- Extensions come in three types: `widget` `storyBlock` and `infoboxBlock`. However, in terms of structure, these three types are essentially the same when developing extensions.
-- Each extension must correspond to a unique JavaScript script.
-- An extension can render its UI in three different locations: `main`, `modal`, and `popup`.
-  - `main` refers to the primary view of the extension, typically a widget panel or block panel.
-  - You can prepare multiple UIs for `main`, `modal`, and `popup`. Each UI will be rendered in a sandboxed iframe, effectively acting as an independent Single Page Application (SPA).
+- Node.js >= 20.11.0
+- Yarn 4.5.1
 
-## Demo
+### Installation
 
-This template includes a simple demo of a plugin with a widget extension. The demo helps illustrate the file structure.
+```bash
+# Clone the repository
+git clone <repository-url>
+cd cms-data-visualizer-plugin
 
-First, define the plugin YAML file `public/reearth.yml`:
-
-```yaml
-id: reearth-visualizer-plugin-shadcn-template
-name: Visualizer plugin shadcn template
-version: 1.0.0
-extensions:
-  - id: demo
-    type: widget
-    name: Demo
-    schema:
-      groups:
-        - id: appearance
-          title: Appearance
-          fields:
-            - id: primary_color
-              title: Primary color
-              type: string
-              ui: color
+# Install dependencies
+yarn install
 ```
 
-As shown, it contains a single extension `demo` of type `widget`.
+### Development
 
-Then, review the structure of the project:
+```bash
+# Start development server with hot reload
+yarn dev-build
 
-```planttext
-my-project/
-├── node_modules/
-├── public/
-│   └── reearth.yml             // Plugin definition
-├── src/
-│   ├── extensions/
-│   │   └── demo/               // Extension folder, naming by extension ID
-│   │       ├── main/           // UI project for the main view
-│   │       └── demo.ts         // Extension script
-│   └── shared/
-│       ├── components/         // Shared components of ShadCN
-│       ├── lib/                // Shared lib of ShanCN
-│       ├── reearthTypes/       // Shared Re:Earth Visualizer Plugin API types
-│       ├── global.css          // Shared Global CSS of tailwind
-│       └── utils.ts
-├── dist/                       // Output directory of the plugin build
-├── dist-ui/                    // Output directory for the UI build
-├── package/                    // Directory for packaging the plugin into a zip file
-├── configs/                    // Vite configuration files for both extensions and UI
-├── scripts/
-├── package.json
-└── README.md
+# Or start specific components
+yarn dev:visualizer:main        # Main visualizer UI
+yarn dev:inspector_block:main   # Inspector block UI
 ```
 
-## Extension Management
+### Building
 
-### Interactive Management Tool
-
-Use the built-in interactive script to easily manage extensions and UI components:
-
-```zsh
-yarn manage
-```
-
-This interactive tool provides a menu-driven interface to:
-
-1. **Create Extension** - Generate new extensions with multiple UI components
-2. **Create UI** - Add new UI components to existing extensions  
-3. **Remove Extension** - Delete extensions and all associated UIs
-4. **Remove UI** - Remove individual UI components
-
-**Features:**
-- **Automated Setup**: Creates all necessary files, folder structure, and templates
-- **Package.json Integration**: Automatically adds/removes dev and build scripts
-- **YAML Management**: Updates `public/reearth.yml` with extension definitions
-- **Validation**: Ensures extension and UI names are valid JavaScript identifiers
-- **Safety Features**: Confirmation prompts and override warnings for existing files
-- **Auto-build**: Triggers initial builds for new extensions/UIs
-
-**Naming Rules:**
-- Extension IDs and UI names must start with a letter (a-z, A-Z)
-- Can contain letters, digits, and underscores only
-- No special characters, spaces, or reserved words
-- Examples: `myExtension`, `my_extension`, `dashboard`, `settings`
-
-### Manual Extension Setup
-
-If you prefer manual setup:
-
-1. Update the `reearth.yml` file in the `public` folder.
-2. Create a new folder in `src/extensions` with the extension ID as the folder name.
-3. Create a new extension script file in the new folder with the extension ID as the file name.
-4. (Optional) Create a new UI project in the new extension folder if needed. You can refer to the `demo/main` for the structure.
-5. Update the scripts in `package.json` to build the new extension.
-
-## Scripts
-
-### Extension Management
-
-```zsh
-yarn manage
-```
-
-Opens the interactive extension management tool for creating and managing extensions and UIs.
-
-### Development Scripts
-
-Refer to the scripts in `package.json`. Here are explanations for some of them:
-
-```zsh
-yarn dev:demo:main
-```
-
-Starts the development server for the `main` UI project of the `demo` extension.
-Ensure you check the environment variables being passed in so you can add your own scripts for different UI projects of different extensions.
-
-```zsh
-yarn build:demo:main
-```
-
-Builds the `main` UI project of the `demo` extension to `dist-ui/demo/main`.
-
-```zsh
-yarn build:demo
-```
-
-Builds the `demo` extension to `dist`. The `reearth.yml` file will also be copied to `dist`.
-
-```zsh
+```bash
+# Build production version and create zip
 yarn build
+
+# Build specific components
+yarn build:visualizer           # Main visualizer
+yarn build:inspector_block      # Inspector block
 ```
 
-Builds the entire plugin (all extensions to `dist`), generating a zip file in the `package` folder.
-Note that `README.md` and `LICENSE` will be included in the zip. Update this script to include build commands for additional extensions as needed.
+### Preview
 
-```zsh
+```bash
+# Preview built app
 yarn preview
 ```
 
-Starts the preview server on port `5005`.
+## Configuration
 
-## Development Workflow with Re:Earth Visualizer
+The plugin supports two data source types:
 
-### Traditional Way
+### CMS Data Visualizer Server
 
-- Start a dev server for the UI project of the extension you are developing.
-- Develop the UI, checking it with the dev server.
-- Develop the extension script, with no immediate way to check the result.
-- Build the plugin and generate the plugin zip file.
-- Go to Re:Earth Visualizer, install the plugin via the zip file, and add the widget or block.
-- Check the result.
+- **Server Base URL**: Base URL of your CMS Data Visualizer server
+- **Server API Key**: Authentication key for server access
 
-This process is lengthy and results in low development efficiency.
+### CMS Integration API
 
-### Improved Way
+- **Integration API Base URL**: Base URL of your CMS Integration API
+- **Integration API Key**: Authentication key for API access
+- **CMS Model ID**: ID of the CMS model to visualize
 
-We are working on adding a new feature to Re:Earth Visualizer to improve the development experience (DX) for plugins. Follow these steps:
+### Location Data Types
 
-0. Preparation:
+1. **Longitude & Latitude Fields**: Separate fields for coordinates
+2. **Longitude & Latitude Array Field**: Single field containing coordinate array
+3. **GeoJSON Field**: Field containing GeoJSON geometry data
 
-   - Run Re:Earth Visualizer locally. Only the front-end is required; you can use any backend, such as the OSS backend.
-   - Update the plugin code. You can test with the demo.
+### Customization
 
-1. Run script:
+- **Infobox Fields**: Comma-separated list of fields to display in markers
+- **Marker Appearance**: JSON configuration for marker styling
 
-```zsh
-yarn dev-build
+## Architecture
+
+This plugin follows the Re-Earth extension-ui architecture:
+
+- **Extensions** (`src/extensions/`): Core plugin logic interfacing with Re-Earth API
+- **UI Components**: React-based user interfaces built with ShadCN/UI
+- **Shared Components**: Reusable UI components and utilities
+
+### Tech Stack
+
+- React 19.1.0 with TypeScript 5.7.2
+- Vite 6.0.3 for build tooling
+- TailwindCSS 4.1.10 for styling
+- Radix UI components with ShadCN/UI
+- Re-Earth Core 0.0.7-alpha.38
+
+## Scripts
+
+### Development
+
+- `yarn dev-build` - Concurrent development with preview server
+- `yarn manage` - Interactive extension/UI management
+
+### Code Quality
+
+- `yarn lint` - Run ESLint
+- `yarn fix` - Auto-fix ESLint issues
+- `yarn format` - Format code with Prettier
+
+### Production
+
+- `yarn build` - Build and create distributable zip
+- `yarn preview` - Preview production build
+
+## Extension Management
+
+Use the interactive management script:
+
+```bash
+yarn manage
 ```
 
-it will:
+This allows you to:
 
-- Start a dev server for the UI project as usual (usually you don't need to use this).
-- Automatically build the UI upon edits.
-- Automatically build the extension.
-- Start a preview server at `http://localhost:5005`.
+- Create new extensions with UI components
+- Add UI components to existing extensions
+- Remove extensions or individual UI components
+- Automatically update configuration files
 
-2. Set environment variables in the Re:Earth Visualizer front-end project: `REEARTH_WEB_DEV_PLUGIN_URLS='["http://localhost:5005"]'`. The server will automatically restart after .env changes.
+## Development Conventions
 
-Done. Now Re:Earth Visualizer will offer two icon buttons in the editor header:
+- Use fixed dependency versions (no ^ or ~ prefixes)
+- Follow existing code patterns and conventions
+- Keep commit messages brief and on one line
 
-- `Install Dev Plugins` ![image](https://github.com/user-attachments/assets/aa5cf46c-019e-4df6-82f7-c18aa18fe108)
+## License
 
-  - This fetches plugin files from the plugin preview, automatically zips, and installs them.
-  - Click this only when initially setting up and after modifying `reearth.yml`.
-
-- `Reload Dev Plugin Extensions` ![image](https://github.com/user-attachments/assets/493b1bf2-0ffa-43d7-9166-849b1e7a5e30)
-
-  - This reloads all extensions from the plugin preview.
-  - Only the plugin reloads, which is much faster than reloading the entire page.
-
-### Summary
-
-Once everything is set up, the improved DX workflow will be:
-
-- Make any changes to the plugin code.
-- Click `Reload Dev Plugin Extensions` on the local Re:Earth Visualizer webpage.
-
-This workflow significantly improves development efficiency compared to the traditional method.
+[License information]

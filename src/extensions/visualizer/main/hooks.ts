@@ -16,6 +16,27 @@ type WidgetProperty = {
   };
 };
 
+type Schema = {
+  id: string;
+  key: string;
+  multiple: boolean;
+  name: string;
+  required: boolean;
+  type: string;
+}[];
+
+type Item = {
+  id: string;
+  fields: Field[];
+};
+
+type Field = {
+  id: string;
+  key: string;
+  type: string;
+  value: unknown;
+};
+
 export default () => {
   useEffect(() => {
     postMsg("init");
@@ -78,7 +99,7 @@ export default () => {
           return;
         }
         // Fetch Schema
-        let schema;
+        let schema: Schema;
         try {
           const url = `${widgetProperty.api.integration_api_base_url}/models/${widgetProperty.api.cms_model_id}`;
           const response = await fetch(url, {
@@ -95,7 +116,6 @@ export default () => {
 
           const data = await response.json();
           schema = data.schema.fields;
-          console.log(schema);
         } catch (error) {
           console.error("Error fetching schema:", error);
         }
@@ -123,7 +143,7 @@ export default () => {
           const perPage = 100;
           const totalPages = Math.ceil(totalCount / perPage);
 
-          let allItems = firstData.items || [];
+          let allItems: Item[] = firstData.items || [];
 
           // Fetch remaining pages if there are more
           if (totalPages > 1) {
@@ -148,6 +168,18 @@ export default () => {
             }
           }
 
+          // append schema's name to each item
+          allItems = allItems.map((item: Item) => ({
+            ...item,
+            fields: [
+              ...item.fields.map((field: Field) => ({
+                ...field,
+                name: schema.find((s) => s.key === field.key)?.name,
+              })),
+            ],
+          }));
+
+          console.log("items", allItems);
           postMsg("addLayer", allItems);
         } catch (error) {
           console.error("Error fetching data:", error);

@@ -2,11 +2,19 @@ import { useEffect, useState } from "react";
 
 import { postMsg } from "@/shared/utils";
 
-type Field = {
+export type Field = {
   id: string;
   key: string;
   type: string;
-  value: any;
+  value:
+    | string
+    | number
+    | boolean
+    | undefined
+    | string[]
+    | number[]
+    | boolean[];
+  name: string;
 };
 
 export default () => {

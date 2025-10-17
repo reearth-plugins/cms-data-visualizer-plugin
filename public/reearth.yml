@@ -60,26 +60,35 @@ extensions:
               title: Location Type
               type: string
               choices:
-                - key: lat_lng_fields
-                  label: Latitude & Longitude fields
+                - key: lng_lat_fields
+                  label: Longitude & Latitude fields
+                - key: lng_lat_array_field
+                  label: Longitude & Latitude array field
                 - key: geojson_field
                   label: GeoJSON field
-            - id: latitude_field
-              title: Latitude Field
+            - id: longitude_field_key
+              title: Longitude Field Key
               type: string
               availableIf:
                 field: location_type
                 type: string
-                value: lat_lng_fields
-            - id: longitude_field
-              title: Longitude Field
+                value: lng_lat_fields
+            - id: latitude_field_key
+              title: Latitude Field Key
               type: string
               availableIf:
                 field: location_type
                 type: string
-                value: lat_lng_fields
-            - id: geojson_field
-              title: GeoJSON Field
+                value: lng_lat_fields
+            - id: longitude_latitude_array_field_key
+              title: Longitude & Latitude Array Field Key
+              type: string
+              availableIf:
+                field: location_type
+                type: string
+                value: lng_lat_array_field
+            - id: geojson_field_key
+              title: GeoJSON Field Key
               type: string
               availableIf:
                 field: location_type
