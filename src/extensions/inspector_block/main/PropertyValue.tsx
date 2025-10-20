@@ -15,8 +15,6 @@ export type Props = {
 };
 
 const PropertyValue: FC<Props> = ({ property }) => {
-  console.log("property", property);
-
   return property.type === "asset" ? (
     isImageUrl(property.value as string) ? (
       <img
@@ -43,20 +41,15 @@ const PropertyValue: FC<Props> = ({ property }) => {
     </a>
   ) : property.type === "markdown" ? (
     <div className="prose">
-      <ReactMarkdown 
-        remarkPlugins={[remarkGfm]} 
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
           a: ({ href, children, ...props }) => (
-            <a 
-              href={href} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              {...props}
-            >
+            <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
               {children}
             </a>
-          )
+          ),
         }}
       >
         {property.value as string}

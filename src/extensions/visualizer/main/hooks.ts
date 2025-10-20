@@ -254,7 +254,6 @@ export default () => {
             ],
           }));
 
-          console.log("Debug: items", allItems);
           postMsg("addLayer", allItems);
         } catch (error) {
           console.error("Error fetching data:", error);
