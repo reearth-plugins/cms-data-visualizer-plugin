@@ -1,4 +1,7 @@
 import { FC } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
 
 export type SingleValueProperty = {
   id: string;
@@ -12,6 +15,8 @@ export type Props = {
 };
 
 const PropertyValue: FC<Props> = ({ property }) => {
+  console.log("property", property);
+
   return property.type === "asset" ? (
     isImageUrl(property.value as string) ? (
       <img
@@ -36,6 +41,27 @@ const PropertyValue: FC<Props> = ({ property }) => {
     >
       {property.value}
     </a>
+  ) : property.type === "markdown" ? (
+    <div className="prose">
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]} 
+        rehypePlugins={[rehypeRaw]}
+        components={{
+          a: ({ href, children, ...props }) => (
+            <a 
+              href={href} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              {...props}
+            >
+              {children}
+            </a>
+          )
+        }}
+      >
+        {property.value as string}
+      </ReactMarkdown>
+    </div>
   ) : property.type === "bool" ? (
     <div className="whitespace-pre-wrap break-words">
       {property.value ? "True" : "False"}
