@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -132,4 +134,98 @@ input[type="number"]::-webkit-inner-spin-button {
 /* Hide spinners in Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Override prose styles with smaller spacing and 12px base text */
+@layer utilities {
+  .prose {
+    @apply text-xs leading-relaxed max-w-none;
+    font-size: 12px;
+  }
+
+  .prose p {
+    @apply my-1 leading-relaxed;
+  }
+
+  .prose h1 {
+    @apply text-lg font-bold mt-3 mb-2 leading-tight;
+  }
+
+  .prose h2 {
+    @apply text-base font-semibold mt-3 mb-1 leading-tight;
+  }
+
+  .prose h3 {
+    @apply text-sm font-medium mt-2 mb-1 leading-tight;
+  }
+
+  .prose h4 {
+    @apply text-xs font-medium mt-2 mb-1 leading-tight;
+  }
+
+  .prose h5 {
+    @apply text-xs font-normal mt-2 mb-1 leading-tight;
+  }
+
+  .prose h6 {
+    @apply text-xs font-normal mt-2 mb-1 leading-tight opacity-75;
+  }
+
+  .prose ul,
+  .prose ol {
+    @apply my-1 pl-4;
+  }
+
+  .prose li {
+    @apply my-0.5;
+  }
+
+  .prose blockquote {
+    @apply my-2 pl-3 border-l-2 border-muted italic;
+  }
+
+  .prose hr {
+    @apply my-2 border-border;
+  }
+
+  .prose code {
+    @apply text-xs bg-muted px-1 py-0.5 rounded font-mono;
+  }
+
+  .prose pre {
+    @apply my-2 p-2 bg-muted rounded text-xs overflow-x-auto;
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0 text-gray-700;
+  }
+
+  .prose a {
+    @apply text-primary underline hover:no-underline;
+  }
+
+  .prose strong {
+    @apply font-semibold;
+  }
+
+  .prose em {
+    @apply italic;
+  }
+
+  .prose table {
+    @apply my-2 w-full border-collapse;
+  }
+
+  .prose th,
+  .prose td {
+    @apply border border-border px-2 py-1 text-left;
+  }
+
+  .prose th {
+    @apply bg-muted font-medium;
+  }
+
+  .prose img {
+    @apply my-1 max-w-full h-auto;
+  }
 }
