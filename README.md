@@ -84,7 +84,9 @@ sequenceDiagram
 
 - **Integration API Base URL**: Base URL of your CMS Integration API
 - **Integration API Key**: Authentication key for API access
+- **CMS Project ID**: ID of the CMS project
 - **CMS Model ID**: ID of the CMS model to visualize
+- **Filters**: Optional value filters to limit displayed data
 
 ### Location Data Types
 
@@ -92,9 +94,22 @@ sequenceDiagram
 2. **Longitude & Latitude Array Field**: Single field containing coordinate array
 3. **GeoJSON Field**: Field containing GeoJSON geometry data
 
+### Data Filtering
+
+The plugin supports filtering CMS data when using the Integration API:
+
+- **Filter Format**: `field===value|value2;field2===value3`
+- **Multiple Values**: Use pipe `|` to separate multiple values for the same field
+- **Multiple Fields**: Use semicolon `;` to separate different field filters
+- **Example**: `status===published|reviewed;category===news`
+
+This example will show only items where:
+- `status` field equals "published" OR "reviewed"
+- AND `category` field equals "news"
+
 ### Customization
 
-- **Infobox Fields**: Comma-separated list of fields to display in markers
+- **Display Fields**: Comma-separated list of fields to display in inspector block
 - **Marker Appearance**: JSON configuration for marker styling
 
 ## Architecture
