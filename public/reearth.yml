@@ -60,6 +60,15 @@ extensions:
                 field: data_source_type
                 type: string
                 value: cms_integration_api
+            - id: value_filters
+              title: Filters
+              description: "Optional, specify value filters, Example: status===published|reviewed;category===news"
+              type: string
+              ui: multiline
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_integration_api
         - id: visualization
           title: Visualization
           fields:

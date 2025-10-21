@@ -11,6 +11,7 @@ type WidgetProperty = {
     integration_api_key?: string;
     cms_project_id?: string;
     cms_model_id?: string;
+    value_filters?: string;
   };
   appearance: {
     marker_appearance?: string;
@@ -253,6 +254,25 @@ export default () => {
               })),
             ],
           }));
+
+          // Apply value filters if any
+          // Example: status===published|reviewed;category===news
+          if (widgetProperty.api.value_filters) {
+            const filters = widgetProperty.api.value_filters
+              .split(";")
+              .map((filter) => {
+                const [key, values] = filter.split("===");
+                return { key, values: values.split("|") };
+              });
+
+            allItems = allItems.filter((item) =>
+              filters.every((filter) => {
+                const field = item.fields.find((f) => f.key === filter.key);
+                if (!field) return false;
+                return filter.values.includes(String(field.value));
+              })
+            );
+          }
 
           postMsg("addLayer", allItems);
         } catch (error) {

@@ -8,7 +8,6 @@ type VisualizationConfig = {
   longitude_field_key?: string;
   longitude_latitude_array_field_key?: string;
   geojson_field_key?: string;
-  infobox_fields?: string;
   marker_appearance?: string;
 };
 
