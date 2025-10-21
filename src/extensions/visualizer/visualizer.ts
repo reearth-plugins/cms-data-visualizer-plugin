@@ -57,6 +57,10 @@ try {
   console.error("Failed to parse marker appearance:", error);
 }
 
+const actualPluginId = reearth.extension.list?.find(
+  (e) => e.extensionId === "visualizer"
+)?.pluginId;
+
 reearth.extension.on("message", (message: unknown) => {
   const msg = message as UIMessage;
 
@@ -84,7 +88,7 @@ reearth.extension.on("message", (message: unknown) => {
       infobox: {
         blocks: [
           {
-            pluginId: "reearth",
+            pluginId: actualPluginId,
             extensionId: "inspector_block",
           },
         ],
