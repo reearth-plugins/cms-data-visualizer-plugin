@@ -46,6 +46,13 @@ extensions:
                 field: data_source_type
                 type: string
                 value: cms_integration_api
+            - id: cms_workspace_id
+              title: CMS Workspace ID
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_integration_api
             - id: cms_project_id
               title: CMS Project ID
               type: string
@@ -119,7 +126,7 @@ extensions:
           fields:
             - id: display_fields
               title: Display Fields
-              description: "Specify the fields to display in the infobox, separated by commas. Left empty to show all fields."
+              description: "Specify the fields to display in the infobox, please use field keys separated by commas. Left empty to show all fields."
               type: string
               ui: multiline
   - id: inspector_block
