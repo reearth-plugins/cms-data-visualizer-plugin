@@ -101,28 +101,28 @@ const generateGeoJSON = (
   config: VisualizationConfig | undefined
 ) => {
   if (!config || !config.location_type) {
-    console.warn("Visualization configuration is missing or incomplete.");
+    console.log("Visualization configuration is missing or incomplete.");
     return null;
   }
 
   // Check location parameters
   if (config.location_type === "lng_lat_fields") {
     if (!config.latitude_field_key || !config.longitude_field_key) {
-      console.warn(
+      console.log(
         "Please set the Longitude Field Key and Latitude Field Key in the visualization configuration."
       );
       return null;
     }
   } else if (config.location_type === "lng_lat_array_field") {
     if (!config.longitude_latitude_array_field_key) {
-      console.warn(
+      console.log(
         "Please set the Longitude & Latitude Array Field Key in the visualization configuration."
       );
       return null;
     }
   } else if (config.location_type === "geojson_field") {
     if (!config.geojson_field_key) {
-      console.warn(
+      console.log(
         "Please set the GeoJSON Field Key in the visualization configuration."
       );
       return null;
@@ -169,9 +169,7 @@ const generateGeoJSON = (
           (f) => f.key === config.longitude_latitude_array_field_key
         )?.value;
         if (!Array.isArray(latLngArray) || latLngArray.length < 2) {
-          console.warn(
-            `Invalid Longitude & Latitude array for item ${item.id}`
-          );
+          console.log(`Invalid Longitude & Latitude array for item ${item.id}`);
           return null;
         }
         coordinates.push(latLngArray[0], latLngArray[1]);
@@ -182,7 +180,7 @@ const generateGeoJSON = (
           )?.value;
 
           if (!geojson) {
-            console.warn(`GeoJSON field is missing for item ${item.id}`);
+            console.log(`GeoJSON field is missing for item ${item.id}`);
             return null;
           }
 
@@ -195,7 +193,7 @@ const generateGeoJSON = (
             ) {
               coordinates.push(...geojsonObj.coordinates);
             } else {
-              console.warn(
+              console.log(
                 `Unsupported GeoJSON type or invalid coordinates for item ${item.id}`
               );
               return null;
@@ -209,25 +207,25 @@ const generateGeoJSON = (
             ) {
               coordinates.push(...geojsonObj.coordinates);
             } else {
-              console.warn(
+              console.log(
                 `Unsupported GeoJSON type or invalid coordinates for item ${item.id}`
               );
               return null;
             }
           } else {
-            console.warn(
+            console.log(
               `GeoJSON field is not a valid string or object for item ${item.id}`
             );
             return null;
           }
         } catch (e) {
-          console.warn(`Error parsing GeoJSON for item ${item.id}: ${e}`);
+          console.log(`Error parsing GeoJSON for item ${item.id}: ${e}`);
           return null;
         }
       }
 
       if (coordinates.length === 0) {
-        console.warn(`No valid coordinates found for item ${item.id}`);
+        console.log(`No valid coordinates found for item ${item.id}`);
         return null;
       }
 

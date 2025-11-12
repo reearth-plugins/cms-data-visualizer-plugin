@@ -158,7 +158,6 @@ export default () => {
               assets = assets.concat(data.items || []);
             }
           }
-          postMsg("setAssets", assets);
         } catch (error) {
           console.error("Error fetching assets:", error);
         }
