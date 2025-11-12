@@ -9,6 +9,7 @@ type WidgetProperty = {
     server_api_key?: string;
     integration_api_base_url?: string;
     integration_api_key?: string;
+    cms_workspace_id?: string;
     cms_project_id?: string;
     cms_model_id?: string;
     value_filters?: string;
@@ -99,11 +100,12 @@ export default () => {
         if (
           !widgetProperty.api.integration_api_base_url ||
           !widgetProperty.api.integration_api_key ||
+          !widgetProperty.api.cms_workspace_id ||
           !widgetProperty.api.cms_project_id ||
           !widgetProperty.api.cms_model_id
         ) {
           console.warn(
-            "Please set the Integration API Base URL, Integration API Key, CMS Project ID, and CMS Model ID in the widget properties."
+            "Please set the Integration API Base URL, Integration API Key, CMS Workspace ID, CMS Project ID, and CMS Model ID in the widget properties."
           );
           return;
         }
@@ -111,7 +113,8 @@ export default () => {
         // Fetch Assets with pagination
         let assets: Asset[];
         try {
-          const baseUrl = `${widgetProperty.api.integration_api_base_url}/projects/${widgetProperty.api.cms_project_id}/assets`;
+          const baseUrl = `${widgetProperty.api.integration_api_base_url}/${widgetProperty.api.cms_workspace_id}/projects/${widgetProperty.api.cms_project_id}/assets`;
+
           const headers = {
             "Content-Type": "application/json",
             Authorization: `Bearer ${widgetProperty.api.integration_api_key}`,
@@ -163,7 +166,7 @@ export default () => {
         // Fetch Schema
         let schema: Schema;
         try {
-          const url = `${widgetProperty.api.integration_api_base_url}/models/${widgetProperty.api.cms_model_id}`;
+          const url = `${widgetProperty.api.integration_api_base_url}/${widgetProperty.api.cms_workspace_id}/projects/${widgetProperty.api.cms_project_id}/models/${widgetProperty.api.cms_model_id}`;
           const response = await fetch(url, {
             method: "GET",
             headers: {
@@ -184,7 +187,8 @@ export default () => {
 
         // Fetch Items with pagination
         try {
-          const baseUrl = `${widgetProperty.api.integration_api_base_url}/models/${widgetProperty.api.cms_model_id}/items`;
+          const baseUrl = `${widgetProperty.api.integration_api_base_url}/${widgetProperty.api.cms_workspace_id}/projects/${widgetProperty.api.cms_project_id}/models/${widgetProperty.api.cms_model_id}/items`;
+
           const headers = {
             "Content-Type": "application/json",
             Authorization: `Bearer ${widgetProperty.api.integration_api_key}`,
