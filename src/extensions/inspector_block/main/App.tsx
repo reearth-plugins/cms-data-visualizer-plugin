@@ -1,32 +1,36 @@
 import useHooks from "./hooks";
-import PropertyValue, { SingleValueProperty } from "./PropertyValue";
+import PropertyItem from "./PropertyItem";
 
 function App() {
-  const { properties } = useHooks();
+  const { inspector } = useHooks();
 
-  if (!properties) {
+  if (!inspector) {
     return null;
   }
 
   return (
     <div className="flex flex-col gap-4 text-sm text-gray-700">
-      {properties.map((prop) => (
-        <div key={prop.id} className="flex flex-col gap-1">
-          <div className="font-bold text-black">{prop.name ?? prop.key}</div>
-          {Array.isArray(prop.value) ? (
-            <div className="flex flex-col gap-1">
-              {prop.value.map((item, index) => (
-                <PropertyValue
-                  key={index}
-                  property={{ ...prop, value: item }}
-                />
-              ))}
+      {inspector.title && (
+        <div className="text-lg font-bold">{inspector.title}</div>
+      )}
+      {inspector.properties.map((property) =>
+        property.type === "group" ? (
+          <div key={property.id} className="flex flex-col gap-2">
+            {!property.hideTitle && (
+              <div className="font-bold text-black">
+                {property.name ?? property.key}
+              </div>
+            )}
+            <div key={property.id} className="flex flex-col gap-2">
+              {property.children?.map((child) => (
+                <PropertyItem key={child.id} property={child} />
+              )) ?? null}
             </div>
-          ) : (
-            <PropertyValue property={prop as SingleValueProperty} />
-          )}
-        </div>
-      ))}
+          </div>
+        ) : (
+          <PropertyItem key={property.id} property={property} />
+        )
+      )}
     </div>
   );
 }
