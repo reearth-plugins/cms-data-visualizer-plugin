@@ -73,5 +73,5 @@ const PropertyValue: FC<Props> = ({ property }) => {
 export default PropertyValue;
 
 const isImageUrl = (url: string) => {
-  return /\.(jpeg|jpg|gif|png|svg)$/.test(url);
+  return /\.(jpeg|jpg|gif|png|svg)$/.test(url.toLowerCase());
 };

@@ -13,6 +13,8 @@ type VisualizationConfig = {
 
 type InspectorConfig = {
   display_fields?: string;
+  title_hidden_fields?: string;
+  title_field?: string;
 };
 
 type WidgetProperty = {
@@ -27,6 +29,8 @@ type ItemField = {
   type: string;
   value: unknown;
   name?: string;
+  group?: string;
+  children?: ItemField[];
 };
 
 type Item = {
@@ -132,8 +136,12 @@ const generateGeoJSON = (
   // Convert items to GeoJSON features
   const inspectorConfig =
     (reearth.extension?.widget?.property as WidgetProperty)?.inspector || {};
+
   const displayFields = inspectorConfig.display_fields
     ? inspectorConfig.display_fields.split(",").map((f) => f.trim())
+    : [];
+  const titleHiddenFields = inspectorConfig.title_hidden_fields
+    ? inspectorConfig.title_hidden_fields.split(",").map((f) => f.trim())
     : [];
 
   const features = items
@@ -146,8 +154,18 @@ const generateGeoJSON = (
         properties[field.key] = field.value;
       });
 
-      // Add filtered fields for inspector
-      properties.__inspector_fields = filterFields(item.fields, displayFields);
+      // Add property for inspector
+      properties.__inspector = {
+        title: inspectorConfig.title_field
+          ? item.fields.find((f) => f.key === inspectorConfig.title_field)
+              ?.value
+          : undefined,
+        properties: processProperties(
+          item.fields,
+          displayFields,
+          titleHiddenFields
+        ),
+      };
 
       // Get location
       const coordinates = [];
@@ -163,7 +181,7 @@ const generateGeoJSON = (
           return null;
         }
 
-        coordinates.push(lng, lat);
+        coordinates.push(Number(lng), Number(lat));
       } else if (config.location_type === "lng_lat_array_field") {
         const latLngArray = item.fields.find(
           (f) => f.key === config.longitude_latitude_array_field_key
@@ -172,7 +190,7 @@ const generateGeoJSON = (
           console.log(`Invalid Longitude & Latitude array for item ${item.id}`);
           return null;
         }
-        coordinates.push(latLngArray[0], latLngArray[1]);
+        coordinates.push(Number(latLngArray[0]), Number(latLngArray[1]));
       } else if (config.location_type === "geojson_field") {
         try {
           const geojson = item.fields.find(
@@ -263,4 +281,38 @@ const filterFields = (
     }
   }
   return filteredFields;
+};
+
+const processProperties = (
+  originalFields: ItemField[],
+  displayFieldKeys: string[],
+  titleHiddenFieldKeys: string[]
+) => {
+  const fieldsToProcess = filterFields(originalFields, displayFieldKeys).map(
+    (field) => ({
+      ...field,
+      hideTitle: titleHiddenFieldKeys.includes(field.key),
+    })
+  );
+
+  const result = [];
+  const byGroup = new Map();
+
+  for (const field of fieldsToProcess) {
+    if (field.group) {
+      const list = byGroup.get(field.group) || [];
+      list.push(field);
+      byGroup.set(field.group, list);
+    } else {
+      result.push(field);
+    }
+  }
+
+  for (const field of result) {
+    if (field.type === "group") {
+      field.children = byGroup.get(field.value) ?? [];
+    }
+  }
+
+  return result;
 };

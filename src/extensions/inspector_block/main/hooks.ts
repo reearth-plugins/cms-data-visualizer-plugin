@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { postMsg } from "@/shared/utils";
 
-export type Field = {
+export type Property = {
   id: string;
   key: string;
   type: string;
@@ -15,18 +15,25 @@ export type Field = {
     | number[]
     | boolean[];
   name: string;
+  hideTitle?: boolean;
+  children?: Property[];
+};
+
+export type Inspector = {
+  title?: string;
+  properties: Property[];
 };
 
 export default () => {
-  const [properties, setProperties] = useState<Field[] | null>(null);
+  const [inspector, setInspector] = useState<Inspector | null>(null);
 
   useEffect(() => {
-    postMsg("getProperties");
+    postMsg("getInspector");
   }, []);
 
   const handleMessage = (e: MessageEvent) => {
-    if (e.data.action === "getProperties") {
-      setProperties(e.data.payload);
+    if (e.data.action === "getInspector") {
+      setInspector(e.data.payload);
     }
   };
 
@@ -38,6 +45,6 @@ export default () => {
   }, []);
 
   return {
-    properties,
+    inspector,
   };
 };

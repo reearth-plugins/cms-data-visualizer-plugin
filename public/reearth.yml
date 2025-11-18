@@ -129,6 +129,15 @@ extensions:
               description: "Specify the fields to display in the infobox, please use field keys separated by commas. Left empty to show all fields."
               type: string
               ui: multiline
+            - id: title_hidden_fields
+              title: Title Hidden Fields
+              description: "Specify the fields to hide their titles from the infobox, please use field keys separated by commas."
+              type: string
+              ui: multiline
+            - id: title_field
+              title: Title Field
+              description: "Specify the field to use as the title in the infobox."
+              type: string
   - id: inspector_block
     type: infoboxBlock
     name: CMS Data Inspector Block
