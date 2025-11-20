@@ -25,6 +25,7 @@ type WidgetProperty = {
     cms_project_id_for_public_api?: string;
     cms_model_id_for_public_api?: string;
     value_filters_for_public_api?: string;
+    field_type_overrides?: string;
   };
   appearance: {
     marker_appearance?: string;
@@ -134,6 +135,7 @@ export default () => {
             projectId: widgetProperty.api.cms_project_id_for_public_api,
             modelId: widgetProperty.api.cms_model_id_for_public_api,
             valueFilters: widgetProperty.api.value_filters_for_public_api,
+            fieldTypeOverrides: widgetProperty.api.field_type_overrides,
           });
           postMsg("addLayer", items);
         } catch (error) {

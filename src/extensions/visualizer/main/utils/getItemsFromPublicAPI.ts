@@ -26,12 +26,14 @@ export const getItemsFromPublicAPI = async ({
   projectId,
   modelId,
   valueFilters,
+  fieldTypeOverrides,
 }: {
   baseUrl: string;
   workspaceId: string;
   projectId: string;
   modelId: string;
   valueFilters?: string;
+  fieldTypeOverrides?: string;
 }): Promise<Item[]> => {
   const url = `${baseUrl}/p/${workspaceId}/${projectId}/${modelId}`;
 
@@ -104,6 +106,19 @@ export const getItemsFromPublicAPI = async ({
 
   flattenProperties(schema.properties);
 
+  // Field type overrides
+  const typeOverrides: Record<string, string> = {};
+  if (fieldTypeOverrides) {
+    const overrides = fieldTypeOverrides.split(",");
+    for (const override of overrides) {
+      const [fieldKey, fieldType] = override.split(":");
+      if (fieldKey && fieldType) {
+        typeOverrides[fieldKey] = fieldType;
+      }
+    }
+  }
+
+  // Process properties
   const processProperties = (
     properties: PropertyObject,
     item: Item,
@@ -118,34 +133,22 @@ export const getItemsFromPublicAPI = async ({
         const fieldId = Math.random().toString(36).substring(2, 9);
 
         // check if it is a group
-        const type = flatSchemaProperties[key]?.type;
-        const field: Field =
-          type === "group"
-            ? {
-                id: fieldId,
-                key,
-                value: fieldId,
-                type,
-                name: flatSchemaProperties[key]?.title || key,
-              }
-            : // support array of assets only
-              Array.isArray(value) &&
-                value.length > 0 &&
-                value[0].type === "asset"
-              ? {
-                  id: fieldId,
-                  key,
-                  value: value.map((v) => v.url),
-                  type: value[0].type,
-                  name: flatSchemaProperties[key]?.title || key,
-                }
-              : {
-                  id: fieldId,
-                  key,
-                  value,
-                  type: flatSchemaProperties[key]?.type,
-                  name: flatSchemaProperties[key]?.title || key,
-                };
+        const type = typeOverrides[key] || flatSchemaProperties[key]?.type;
+
+        const field: Field = {
+          id: fieldId,
+          key,
+          value:
+            type === "group"
+              ? fieldId
+              : type === "asset"
+                ? Array.isArray(value)
+                  ? value.map((v) => v.url)
+                  : value
+                : value,
+          type,
+          name: flatSchemaProperties[key]?.title || key,
+        };
 
         if (groupId) field.group = groupId;
 

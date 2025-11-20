@@ -115,6 +115,15 @@ extensions:
                 field: data_source_type
                 type: string
                 value: cms_public_api
+            - id: field_type_overrides
+              title: Field Type Overrides
+              description: "Optional, specify field type overrides. Example: field_key_1:markdown,field_key_2:geometryObject"
+              type: string
+              ui: multiline
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_public_api
         - id: visualization
           title: Visualization
           fields:
