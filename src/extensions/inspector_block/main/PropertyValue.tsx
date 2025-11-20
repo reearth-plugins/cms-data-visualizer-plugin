@@ -65,7 +65,7 @@ const PropertyValue: FC<Props> = ({ property }) => {
     </div>
   ) : property.type === "object" ? (
     <div className="whitespace-pre-wrap break-words">
-      {JSON.stringify(property.value)}
+      {JSON.stringify(property.value, null, 2)}
     </div>
   ) : (
     <div className="whitespace-pre-wrap break-words">
