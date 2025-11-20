@@ -63,6 +63,10 @@ const PropertyValue: FC<Props> = ({ property }) => {
     <div className="whitespace-pre-wrap break-words">
       {new Date(property.value as string).toLocaleString()}
     </div>
+  ) : property.type === "object" ? (
+    <div className="whitespace-pre-wrap break-words">
+      {JSON.stringify(property.value)}
+    </div>
   ) : (
     <div className="whitespace-pre-wrap break-words">
       {property.value?.toString()}

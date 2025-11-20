@@ -18,6 +18,8 @@ extensions:
                   label: CMS Data Visualizer Server
                 - key: cms_integration_api
                   label: CMS Integration API
+                - key: cms_public_api
+                  label: CMS Public API
             - id: server_base_url
               title: Server Base URL
               type: string
@@ -76,6 +78,43 @@ extensions:
                 field: data_source_type
                 type: string
                 value: cms_integration_api
+            - id: public_api_base_url
+              title: Public API Base URL
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_public_api
+            - id: cms_workspace_id_for_public_api
+              title: CMS Workspace ID
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_public_api
+            - id: cms_project_id_for_public_api
+              title: CMS Project ID
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_public_api
+            - id: cms_model_id_for_public_api
+              title: CMS Model ID
+              type: string
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_public_api
+            - id: value_filters_for_public_api
+              title: Filters
+              description: "Optional, specify value filters, Example: status===published|reviewed;category===news"
+              type: string
+              ui: multiline
+              availableIf:
+                field: data_source_type
+                type: string
+                value: cms_public_api
         - id: visualization
           title: Visualization
           fields:
