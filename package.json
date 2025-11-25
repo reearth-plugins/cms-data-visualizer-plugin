@@ -6,7 +6,7 @@
     "node": ">=20.11.0"
   },
   "scripts": {
-    "build": "run-s build:visualizer zip",
+    "build": "run-s build:visualizer build:inspector_block zip",
     "preview": "vite preview --port 5005 --strict-port",
     "zip": "node ./scripts/zip.mjs",
     "manage": "node ./scripts/manage.mjs",
